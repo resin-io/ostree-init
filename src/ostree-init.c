@@ -106,8 +106,9 @@ static char *
 get_file_contents (const char *path, size_t *len)
 {
   FILE *f = NULL;
+  int did_save_errno = 0;
   char *ret = NULL;
-  int saved_errno;
+  int saved_errno = 0;
   char *buf = NULL;
   size_t bytes_read;
   size_t buf_size;
@@ -116,6 +117,7 @@ get_file_contents (const char *path, size_t *len)
   f = fopen (path, "r");
   if (!f)
     {
+      did_save_errno = 1;
       saved_errno = errno;
       goto out;
     }
@@ -137,6 +139,7 @@ get_file_contents (const char *path, size_t *len)
     }
   if (bytes_read < 0)
     {
+      did_save_errno = 1;
       saved_errno = errno;
       goto out;
     }
@@ -148,7 +151,8 @@ get_file_contents (const char *path, size_t *len)
   if (f)
     fclose (f);
   free (buf);
-  errno = saved_errno;
+  if (did_save_errno)
+    errno = saved_errno;
   return ret;
 }
 
