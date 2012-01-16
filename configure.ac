@@ -9,7 +9,7 @@ AM_MAINTAINER_MODE([enable])
 AM_SILENT_RULES([yes])
 
 AC_PROG_CC
-AM_PROG_CC_C_O
+AC_PROG_CC_C_O
 
 changequote(,)dnl
 if test "x$GCC" = "xyes"; then
@@ -20,7 +20,7 @@ AC_SUBST(WARN_CFLAGS)
 
 # Initialize libtool
 LT_PREREQ([2.2.4])
-LT_INIT([disable-static])
+LT_INIT([disable-shared])
 
 AC_CONFIG_FILES([
 Makefile

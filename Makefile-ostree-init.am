@@ -20,3 +20,6 @@ sbin_PROGRAMS += ostree-init
 ostree_init_SOURCES = src/ostree-init.c
 
 ostree_init_CFLAGS = $(AM_CFLAGS)
+# We can't dynamically link to libc because it's not in
+# the root filesystem.
+ostree_init_LDFLAGS = -all-static
