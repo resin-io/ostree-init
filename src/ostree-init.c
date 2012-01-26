@@ -247,6 +247,12 @@ main(int argc, char *argv[])
       exit (1);
     }
 
+  snprintf (destpath, sizeof(destpath), "/ostree/%s/dev/shm", ostree_root);
+  (void) mkdir (destpath);
+
+  snprintf (destpath, sizeof(destpath), "/ostree/%s/dev/pts", ostree_root);
+  (void) mkdir (destpath);
+
   snprintf (destpath, sizeof(destpath), "/ostree/%s/run", ostree_root);
   if (mount ("tmpfs", destpath, "tmpfs",
 	     MS_MGC_VAL | MS_NOSUID | MS_NODEV,
