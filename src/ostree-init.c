@@ -248,10 +248,10 @@ main(int argc, char *argv[])
     }
 
   snprintf (destpath, sizeof(destpath), "/ostree/%s/dev/shm", ostree_root);
-  (void) mkdir (destpath);
+  (void) mkdir (destpath, 0755);
 
   snprintf (destpath, sizeof(destpath), "/ostree/%s/dev/pts", ostree_root);
-  (void) mkdir (destpath);
+  (void) mkdir (destpath, 0755);
 
   snprintf (destpath, sizeof(destpath), "/ostree/%s/run", ostree_root);
   if (mount ("tmpfs", destpath, "tmpfs",
