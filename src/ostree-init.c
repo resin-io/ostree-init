@@ -145,6 +145,7 @@ get_file_contents (const char *path, size_t *len)
     }
 
   ret = buf;
+  ret[buf_used] = '\0';
   buf = NULL;
   *len = buf_used;
  out:
@@ -153,6 +154,51 @@ get_file_contents (const char *path, size_t *len)
   free (buf);
   if (did_save_errno)
     errno = saved_errno;
+  return ret;
+}
+
+static int
+is_mounted (const char *path)
+{
+  const char *line;
+  int ret = 0;
+  size_t pathlen = strlen (path);
+  size_t buflen;
+  char *buf = get_file_contents ("/proc/mounts", &buflen);
+
+  line = buf;
+  do 
+    {
+      const char *newl;
+      const char *mnt;
+      const char *end;
+
+      mnt = strchr (line, ' ');
+      if (mnt)
+	{
+	  mnt += 1;
+
+	  end = strchr (mnt, ' ');
+	  if (end)
+	    {
+	      if (!strncmp (path, mnt, pathlen)
+		  && (end - mnt) == pathlen)
+		{
+		  ret = 1;
+		  break;
+		}
+	    }	      
+	}
+
+      newl = strchr (line, '\n');
+      if (newl)
+	line = newl+1;
+      else
+	line = NULL;
+    }
+  while (line);
+
+  free (buf);
   return ret;
 }
 
@@ -235,28 +281,57 @@ main(int argc, char *argv[])
       exit (1);
     }
 
-  snprintf (destpath, sizeof(destpath), "/ostree/%s/dev", ostree_root);
-  if (mount ("udev", destpath, "devtmpfs",
-	     MS_MGC_VAL | MS_NOSUID,
-	     "seclabel,relatime,size=1960040k,nr_inodes=49010,mode=755") < 0)
+  /* We want to support booting with no initramfs, or with dracut.  So
+   * we first check whether /dev has already been mounted.  If not, do
+   * it here.  Otherwise create a bind mount.
+   */
+  if (!is_mounted ("/dev"))
     {
-      perrorv ("Failed to mount devtmpfs on '%s'", destpath);
-      exit (1);
+      if (mount ("udev", destpath, "devtmpfs",
+		 MS_MGC_VAL | MS_NOSUID,
+		 "seclabel,relatime,size=1960040k,nr_inodes=49010,mode=755") < 0)
+	{
+	  perrorv ("Failed to mount devtmpfs on '%s'", destpath);
+	  exit (1);
+	}
+      
+      snprintf (destpath, sizeof(destpath), "/ostree/%s/dev/shm", ostree_root);
+      (void) mkdir (destpath, 0755);
+      
+      snprintf (destpath, sizeof(destpath), "/ostree/%s/dev/pts", ostree_root);
+      (void) mkdir (destpath, 0755);
+    }
+  else
+    {
+      snprintf (srcpath, sizeof(srcpath), "/dev");
+      snprintf (destpath, sizeof(destpath), "/ostree/%s/dev", ostree_root);
+      if (mount (srcpath, destpath, NULL, MS_MGC_VAL|MS_BIND, NULL) < 0)
+	{
+	  perrorv ("failed to bind mount %s to %s", srcpath, destpath);
+	  exit (1);
+	}
     }
 
-  snprintf (destpath, sizeof(destpath), "/ostree/%s/dev/shm", ostree_root);
-  (void) mkdir (destpath, 0755);
-
-  snprintf (destpath, sizeof(destpath), "/ostree/%s/dev/pts", ostree_root);
-  (void) mkdir (destpath, 0755);
-
-  snprintf (destpath, sizeof(destpath), "/ostree/%s/run", ostree_root);
-  if (mount ("tmpfs", destpath, "tmpfs",
-	     MS_MGC_VAL | MS_NOSUID | MS_NODEV,
-	     "mode=755") < 0)
+  if (!is_mounted ("/run"))
     {
-      perrorv ("Failed to mount tmpfs on '%s'", destpath);
-      exit (1);
+      snprintf (destpath, sizeof(destpath), "/ostree/%s/run", ostree_root);
+      if (mount ("tmpfs", destpath, "tmpfs",
+		 MS_MGC_VAL | MS_NOSUID | MS_NODEV,
+		 "mode=755") < 0)
+	{
+	  perrorv ("Failed to mount tmpfs on '%s'", destpath);
+	  exit (1);
+	}
+    }
+  else
+    {
+      snprintf (srcpath, sizeof(srcpath), "/run");
+      snprintf (destpath, sizeof(destpath), "/ostree/%s/run", ostree_root);
+      if (mount (srcpath, destpath, NULL, MS_MGC_VAL|MS_BIND, NULL) < 0)
+	{
+	  perrorv ("failed to bind mount %s to %s", srcpath, destpath);
+	  exit (1);
+	}
     }
 
   for (i = 0; toproot_bind_mounts[i] != NULL; i++)
