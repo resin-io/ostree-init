@@ -203,10 +203,7 @@ main(int argc, char *argv[])
   free (tmp);
 
   if (!ostree_root)
-    {
-      fprintf (stderr, "No ostree= argument specified\n");
-      exit (1);
-    }
+    ostree_root = "current";
 
   if (!readonly)
     {
