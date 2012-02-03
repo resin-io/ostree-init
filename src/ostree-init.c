@@ -308,9 +308,9 @@ main(int argc, char *argv[])
     {
       snprintf (srcpath, sizeof(srcpath), "/dev");
       snprintf (destpath, sizeof(destpath), "/ostree/%s/dev", ostree_root);
-      if (mount (srcpath, destpath, NULL, MS_MGC_VAL|MS_BIND, NULL) < 0)
+      if (mount (srcpath, destpath, NULL, MS_MOVE, NULL) < 0)
 	{
-	  perrorv ("failed to bind mount %s to %s", srcpath, destpath);
+	  perrorv ("failed to move mount of %s to %s", srcpath, destpath);
 	  exit (1);
 	}
     }
@@ -330,7 +330,7 @@ main(int argc, char *argv[])
     {
       snprintf (srcpath, sizeof(srcpath), "/run");
       snprintf (destpath, sizeof(destpath), "/ostree/%s/run", ostree_root);
-      if (mount (srcpath, destpath, NULL, MS_MGC_VAL|MS_BIND, NULL) < 0)
+      if (mount (srcpath, destpath, NULL, MS_MOVE, NULL) < 0)
 	{
 	  perrorv ("failed to bind mount %s to %s", srcpath, destpath);
 	  exit (1);
