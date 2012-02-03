@@ -162,9 +162,12 @@ is_mounted (const char *path)
 {
   const char *line;
   int ret = 0;
-  size_t pathlen = strlen (path);
+  size_t pathlen;
   size_t buflen;
-  char *buf = get_file_contents ("/proc/mounts", &buflen);
+  char *buf;
+
+  pathlen = strlen (path);
+  buf = get_file_contents ("/proc/mounts", &buflen);
 
   line = buf;
   do 
