@@ -6,8 +6,8 @@
          xmlns="http://usefulinc.com/ns/doap#">
 
   <name>ostree-init</name>
-
   <shortdesc xml:lang="en">Set up bind mounts, then trampoline into a chrooted init</shortdesc>
+  <category rdf:resource="http://api.gnome.org/doap-extensions#infrastructure" />
 
   <homepage rdf:resource="http://live.gnome.org/GnomeOS/Building" />
   <license rdf:resource="http://usefulinc.com/doap/licenses/gpl" />
