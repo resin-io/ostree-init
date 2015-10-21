@@ -208,7 +208,6 @@ is_mounted (const char *path)
 int
 main(int argc, char *argv[])
 {
-  const char *toproot_bind_mounts[] = { "/home", "/root", "/tmp", NULL };
   const char *ostree_bind_mounts[] = { "/var", NULL };
   const char *readonly_bind_mounts[] = { "/bin", "/etc", "/lib", "/sbin", "/usr",
 					 NULL };
@@ -333,16 +332,6 @@ main(int argc, char *argv[])
       if (mount (srcpath, destpath, NULL, MS_MOVE, NULL) < 0)
 	{
 	  perrorv ("failed to bind mount %s to %s", srcpath, destpath);
-	  exit (1);
-	}
-    }
-
-  for (i = 0; toproot_bind_mounts[i] != NULL; i++)
-    {
-      snprintf (destpath, sizeof(destpath), "/ostree/%s%s", ostree_root, toproot_bind_mounts[i]);
-      if (mount (toproot_bind_mounts[i], destpath, NULL, MS_BIND & ~MS_RDONLY, NULL) < 0)
-	{
-	  perrorv ("failed to bind mount (class:toproot) %s to %s", toproot_bind_mounts[i], destpath);
 	  exit (1);
 	}
     }
