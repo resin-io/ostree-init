@@ -55,7 +55,7 @@ perrorv (const char *format, ...)
   va_end (args);
 
   sleep (3);
-	
+
   return 0;
 }
 
@@ -170,7 +170,7 @@ is_mounted (const char *path)
   buf = get_file_contents ("/proc/mounts", &buflen);
 
   line = buf;
-  do 
+  do
     {
       const char *newl;
       const char *mnt;
@@ -190,7 +190,7 @@ is_mounted (const char *path)
 		  ret = 1;
 		  break;
 		}
-	    }	      
+	    }
 	}
 
       newl = strchr (line, '\n');
@@ -269,14 +269,14 @@ main(int argc, char *argv[])
       perrorv ("Invalid ostree root '%s'", destpath);
       exit (1);
     }
-  
+
   snprintf (destpath, sizeof(destpath), "/ostree/%s/var", ostree_root);
   if (mount ("/ostree/var", destpath, NULL, MS_BIND, NULL) < 0)
     {
       perrorv ("Failed to bind mount / to '%s'", destpath);
       exit (1);
     }
-  
+
   snprintf (destpath, sizeof(destpath), "/ostree/%s/sysroot", ostree_root);
   if (mount ("/", destpath, NULL, MS_BIND, NULL) < 0)
     {
@@ -297,10 +297,10 @@ main(int argc, char *argv[])
 	  perrorv ("Failed to mount devtmpfs on '%s'", destpath);
 	  exit (1);
 	}
-      
+
       snprintf (destpath, sizeof(destpath), "/ostree/%s/dev/shm", ostree_root);
       (void) mkdir (destpath, 0755);
-      
+
       snprintf (destpath, sizeof(destpath), "/ostree/%s/dev/pts", ostree_root);
       (void) mkdir (destpath, 0755);
     }
@@ -372,7 +372,7 @@ main(int argc, char *argv[])
 	  exit (1);
 	}
     }
-  
+
   snprintf (destpath, sizeof(destpath), "/ostree/%s", ostree_root);
   if (chroot (destpath) < 0)
     {
@@ -397,7 +397,7 @@ main(int argc, char *argv[])
   for (i = 1; i < argc; i++)
     init_argv[i] = argv[i];
   init_argv[i] = NULL;
-  
+
   fprintf (stderr, "ostree-init: Running real init %s (argc=%d)\n", init_argv[0], argc);
   fflush (stderr);
   execv (init_argv[0], init_argv);
