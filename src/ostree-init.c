@@ -209,8 +209,6 @@ int
 main(int argc, char *argv[])
 {
   const char *ostree_bind_mounts[] = { "/var", NULL };
-  const char *readonly_bind_mounts[] = { "/bin", "/etc", "/lib", "/sbin", "/usr",
-					 NULL };
   char *ostree_root = NULL;
   char *ostree_subinit = NULL;
   char srcpath[PATH_MAX];
@@ -343,21 +341,6 @@ main(int argc, char *argv[])
       if (mount (srcpath, destpath, NULL, MS_MGC_VAL|MS_BIND, NULL) < 0)
 	{
 	  perrorv ("failed to bind mount (class:bind) %s to %s", srcpath, destpath);
-	  exit (1);
-	}
-    }
-
-  for (i = 0; readonly_bind_mounts[i] != NULL; i++)
-    {
-      snprintf (destpath, sizeof(destpath), "/ostree/%s%s", ostree_root, readonly_bind_mounts[i]);
-      if (mount (destpath, destpath, NULL, MS_BIND, NULL) < 0)
-	{
-	  perrorv ("failed to bind mount (class:readonly) %s", destpath);
-	  exit (1);
-	}
-      if (mount (destpath, destpath, NULL, MS_BIND | MS_REMOUNT | MS_RDONLY, NULL) < 0)
-	{
-	  perrorv ("failed to bind mount (class:readonly) %s", destpath);
 	  exit (1);
 	}
     }
