@@ -282,26 +282,10 @@ main(int argc, char *argv[])
     }
 
   /* We want to support booting with no initramfs, or with dracut.  So
-   * we first check whether /dev has already been mounted.  If not, do
-   * it here.  Otherwise create a bind mount.
+   * we first check whether /dev has already been mounted and create a
+   * bind mount.
    */
-  if (!is_mounted ("/dev"))
-    {
-      if (mount ("udev", destpath, "devtmpfs",
-		 MS_MGC_VAL | MS_NOSUID,
-		 "seclabel,relatime,size=1960040k,nr_inodes=49010,mode=755") < 0)
-	{
-	  perrorv ("Failed to mount devtmpfs on '%s'", destpath);
-	  exit (1);
-	}
-
-      snprintf (destpath, sizeof(destpath), "/ostree/%s/dev/shm", ostree_root);
-      (void) mkdir (destpath, 0755);
-
-      snprintf (destpath, sizeof(destpath), "/ostree/%s/dev/pts", ostree_root);
-      (void) mkdir (destpath, 0755);
-    }
-  else
+  if (is_mounted ("/dev"))
     {
       snprintf (srcpath, sizeof(srcpath), "/dev");
       snprintf (destpath, sizeof(destpath), "/ostree/%s/dev", ostree_root);
@@ -312,18 +296,7 @@ main(int argc, char *argv[])
 	}
     }
 
-  if (!is_mounted ("/run"))
-    {
-      snprintf (destpath, sizeof(destpath), "/ostree/%s/run", ostree_root);
-      if (mount ("tmpfs", destpath, "tmpfs",
-		 MS_MGC_VAL | MS_NOSUID | MS_NODEV,
-		 "mode=755") < 0)
-	{
-	  perrorv ("Failed to mount tmpfs on '%s'", destpath);
-	  exit (1);
-	}
-    }
-  else
+  if (is_mounted ("/run"))
     {
       snprintf (srcpath, sizeof(srcpath), "/run");
       snprintf (destpath, sizeof(destpath), "/ostree/%s/run", ostree_root);
