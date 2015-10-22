@@ -218,7 +218,6 @@ main(int argc, char *argv[])
   char *cmdline = NULL;
   size_t len;
   int i;
-  int mounted_proc = 0;
   char *tmp;
   int readonly;
 
@@ -236,6 +235,7 @@ main(int argc, char *argv[])
 	  perrorv ("Failed to read /proc/cmdline");
 	  return 1;
 	}
+    (void) umount ("/proc");
     }
 
   fprintf (stderr, "ostree-init kernel cmdline: %s\n", cmdline);
@@ -358,8 +358,6 @@ main(int argc, char *argv[])
       exit (1);
     }
 
-  if (mounted_proc)
-    (void)umount ("/proc");
 
   init_argv = malloc (sizeof (char*)*(argc+1));
   if (ostree_subinit)
