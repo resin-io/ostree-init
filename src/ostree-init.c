@@ -274,13 +274,6 @@ main(int argc, char *argv[])
       exit (1);
     }
 
-  snprintf (destpath, sizeof(destpath), "/ostree/%s/sysroot", ostree_root);
-  if (mount ("/", destpath, NULL, MS_BIND, NULL) < 0)
-    {
-      perrorv ("Failed to bind mount / to '%s'", destpath);
-      exit (1);
-    }
-
   /* We want to support booting with no initramfs, or with dracut.  So
    * we first check whether /dev has already been mounted and create a
    * bind mount.
@@ -318,10 +311,11 @@ main(int argc, char *argv[])
 	}
     }
 
-  snprintf (destpath, sizeof(destpath), "/ostree/%s", ostree_root);
-  if (chroot (destpath) < 0)
+  snprintf (srcpath, sizeof(srcpath), "/ostree/%s", ostree_root);
+  snprintf (destpath, sizeof(destpath), "/ostree/%s/sysroot", ostree_root);
+  if (pivot_root(srcpath, destpath) < 0)
     {
-      perrorv ("failed to change root to '%s'", destpath);
+      perrorv ("Failed to pivot root to '%s'", srcpath);
       exit (1);
     }
 
